@@ -1,0 +1,5 @@
+node_modules/
+.councilkit/
+*.log
+.DS_Store
+Thumbs.db
