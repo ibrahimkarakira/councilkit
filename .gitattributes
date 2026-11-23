@@ -1,0 +1,3 @@
+# Plan-hash fixtures are byte-exact: keep the LF copy LF and the CRLF copy CRLF on every checkout.
+fixtures/plan-ok.md text eol=lf
+fixtures/plan-crlf.md -text

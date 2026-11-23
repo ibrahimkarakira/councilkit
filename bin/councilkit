@@ -1,0 +1,6 @@
+#!/usr/bin/env node
+// Thin launcher; the logic lives in lib/cli.mjs. Dynamic import works whether Node loads this
+// extensionless file as CommonJS or as an ES module.
+import('../lib/cli.mjs').then(({ main }) => {
+  process.exitCode = main(process.argv.slice(2));
+});
