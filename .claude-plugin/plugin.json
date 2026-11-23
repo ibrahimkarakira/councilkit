@@ -1,0 +1,11 @@
+{
+  "name": "councilkit",
+  "displayName": "councilkit",
+  "version": "0.0.1",
+  "description": "Plan, cross-model review with a judge on disagreements, build, a diff-sized review panel, and a hash-chained evidence ledger.",
+  "author": { "name": "Ibrahim Karakira", "url": "https://github.com/ibrahimkarakira" },
+  "homepage": "https://github.com/ibrahimkarakira/councilkit",
+  "repository": "https://github.com/ibrahimkarakira/councilkit",
+  "license": "Apache-2.0",
+  "keywords": ["code-review", "multi-model", "codex", "evidence", "audit"]
+}
