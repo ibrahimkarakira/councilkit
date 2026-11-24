@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ibrahimkarakira/councilkit/schemas/config.schema.json",
+  "title": "councilkit.json",
+  "description": "councilkit config at the repo root, as written on disk. Every key is optional: missing top-level keys take the defaults, and judge, panel and rules merge one level deep over theirs, so their inner keys are optional too. reviewers replaces the default list wholesale, so each reviewer needs id and adapter. lib/config.mjs validates the merged result, is authoritative, and also enforces what JSON Schema cannot: reviewer ids are unique, tier max_changed_lines strictly ascends, and null is allowed only on the last tier.",
+  "type": "object",
+  "properties": {
+    "version": { "const": 1 },
+    "dir": { "type": "string", "minLength": 1 },
+    "reviewers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "allOf": [{ "$ref": "#/$defs/adapterFields" }],
+        "required": ["id", "adapter"],
+        "properties": { "id": { "type": "string", "minLength": 1 } },
+        "unevaluatedProperties": false
+      }
+    },
+    "judge": { "$ref": "#/$defs/adapterFields", "unevaluatedProperties": false },
+    "panel": {
+      "type": "object",
+      "properties": {
+        "tiers": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["max_changed_lines", "lenses"],
+            "properties": {
+              "max_changed_lines": { "type": ["integer", "null"], "minimum": 1 },
+              "lenses": { "$ref": "#/$defs/textList" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "rules": {
+      "type": "object",
+      "properties": {
+        "max_fix_rounds": { "type": "integer", "minimum": 1 },
+        "blocker_severities": { "$ref": "#/$defs/textList" },
+        "block_on_stale_plan": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "adapter": { "enum": ["codex", "command", "replay"] },
+    "textList": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+    "adapterFields": {
+      "type": "object",
+      "properties": {
+        "adapter": { "$ref": "#/$defs/adapter" },
+        "model": { "type": ["string", "null"], "description": "null = the adapter's default model" },
+        "sandbox": { "type": "string", "minLength": 1 },
+        "timeout_s": { "type": "integer", "minimum": 1 },
+        "command": { "$ref": "#/$defs/textList" }
+      },
+      "if": { "properties": { "adapter": { "const": "command" } }, "required": ["adapter"] },
+      "then": { "required": ["command"] }
+    }
+  }
+}
