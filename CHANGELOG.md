@@ -9,3 +9,4 @@ All notable changes to this project are recorded here. The format follows [Keep 
 - Add the hash-chained evidence ledger library (`lib/ledger.mjs`: canonical JSON, `append`, `verify`) and its line schema (#9).
 - Add `councilkit ledger append|show|verify --slug <s>` (exit 2 on bad input, 3 on a broken chain) (#10).
 - Add the `councilkit.json` loader (`lib/config.mjs`: defaults, per-section merge, path-style errors), its schema and `docs/config.md` (#11).
+- Add the `/councilkit:plan` skill and plan template, and `councilkit plan lint <file>` (exit 2 names each missing required section) (#12).
