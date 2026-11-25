@@ -12,3 +12,4 @@ All notable changes to this project are recorded here. The format follows [Keep 
 - Add the `/councilkit:plan` skill and plan template, and `councilkit plan lint <file>` (exit 2 names each missing required section) (#12).
 - Add the finding schema and contest detection (`lib/findings.mjs`: `contested`, `uncontestedBlockers`, `uncontestedRest`), so only disagreements reach the judge (#13).
 - Add the stale-plan gate: `councilkit gate review --slug <s>` exits 2 and records `gate.blocked` when `plan.md` no longer matches the plan of record, and `councilkit plan rebind --slug <s> --reason '<text>'` records a `plan.rebound` (#14).
+- Add the adapter interface (`lib/adapters/index.mjs`, `getAdapter`) and the offline `replay` adapter, which answers from `fixtures/transcripts/<sha256>.json` and returns `no transcript for sha256:<key>` on a miss; `scripts/record-transcript.mjs` records transcripts and refuses any that contain a home path or an e-mail address (#15).

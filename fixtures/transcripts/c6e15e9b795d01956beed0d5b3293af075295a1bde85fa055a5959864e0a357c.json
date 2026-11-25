@@ -1,0 +1,30 @@
+{
+  "request": {
+    "role": "reviewer",
+    "prompt": "Review this plan. Reply with JSON only.\n\n# Plan: add-json\n\n## Goal\nAdd a `--json` flag to the `list` command so scripts can read its output without parsing text.\n\n## Acceptance\n- `list --json` prints a JSON array of item names, and `[]` when there are no items.\n- Without `--json` the text output is unchanged.\n",
+    "schema": {
+      "type": "object",
+      "required": [
+        "verdict",
+        "findings"
+      ]
+    }
+  },
+  "response": {
+    "ok": true,
+    "json": {
+      "verdict": "changes",
+      "findings": [
+        {
+          "id": "F1",
+          "anchor": "Acceptance",
+          "category": "testability",
+          "severity": "blocker",
+          "claim": "No check for empty list output."
+        }
+      ]
+    },
+    "raw": "{\"verdict\":\"changes\",\"findings\":[{\"id\":\"F1\",\"anchor\":\"Acceptance\",\"category\":\"testability\",\"severity\":\"blocker\",\"claim\":\"No check for empty list output.\"}]}",
+    "exit": 0
+  }
+}
