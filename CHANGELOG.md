@@ -11,3 +11,4 @@ All notable changes to this project are recorded here. The format follows [Keep 
 - Add the `councilkit.json` loader (`lib/config.mjs`: defaults, per-section merge, path-style errors), its schema and `docs/config.md` (#11).
 - Add the `/councilkit:plan` skill and plan template, and `councilkit plan lint <file>` (exit 2 names each missing required section) (#12).
 - Add the finding schema and contest detection (`lib/findings.mjs`: `contested`, `uncontestedBlockers`, `uncontestedRest`), so only disagreements reach the judge (#13).
+- Add the stale-plan gate: `councilkit gate review --slug <s>` exits 2 and records `gate.blocked` when `plan.md` no longer matches the plan of record, and `councilkit plan rebind --slug <s> --reason '<text>'` records a `plan.rebound` (#14).
