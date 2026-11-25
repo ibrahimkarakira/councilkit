@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ibrahimkarakira/councilkit/schemas/finding.schema.json",
+  "title": "councilkit review finding",
+  "description": "One finding in review.submitted data.findings. Contest key = anchor|category, so neither may contain |. id is unique only within one reviewer. disputes lists contest keys (anchor|category) or other reviewers' findings as reviewer/id that this finding disagrees with; a bare id is accepted only when exactly one other reviewer has a finding with that id. lib/findings.mjs validateFinding is authoritative.",
+  "type": "object",
+  "required": ["id", "anchor", "category", "severity", "claim"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "anchor": { "type": "string", "pattern": "^[^|]+$" },
+    "category": { "type": "string", "pattern": "^[^|]+$" },
+    "severity": { "enum": ["blocker", "major", "minor", "nit"] },
+    "claim": { "type": "string", "minLength": 1 },
+    "evidence": { "type": "string" },
+    "disputes": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+  },
+  "additionalProperties": false
+}
