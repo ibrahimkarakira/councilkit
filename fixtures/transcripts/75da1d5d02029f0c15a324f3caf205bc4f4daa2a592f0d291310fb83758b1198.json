@@ -1,0 +1,22 @@
+{
+  "request": {
+    "role": "judge",
+    "prompt": "Rule on the contested finding Acceptance|testability for this plan. Reply with JSON only.\n\n# Plan: add-json\n\n## Goal\nAdd a `--json` flag to the `list` command so scripts can read its output without parsing text.\n\n## Acceptance\n- `list --json` prints a JSON array of item names, and `[]` when there are no items.\n- Without `--json` the text output is unchanged.\n",
+    "schema": {
+      "type": "object",
+      "required": [
+        "ruling",
+        "reason"
+      ]
+    }
+  },
+  "response": {
+    "ok": true,
+    "json": {
+      "ruling": "uphold",
+      "reason": "Empty output is observable and untested."
+    },
+    "raw": "{\"ruling\":\"uphold\",\"reason\":\"Empty output is observable and untested.\"}",
+    "exit": 0
+  }
+}
