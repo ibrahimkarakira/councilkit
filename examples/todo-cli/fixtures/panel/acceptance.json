@@ -1,0 +1,10 @@
+[
+  {
+    "id": "A1",
+    "anchor": "Acceptance",
+    "category": "docs",
+    "severity": "nit",
+    "claim": "The usage line now shows [--json], but no test checks the usage text.",
+    "evidence": "todo.mjs: usage: todo add <text> | todo done <n> | todo list [--json]"
+  }
+]
