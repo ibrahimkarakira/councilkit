@@ -13,7 +13,7 @@ Run the review panel for the plan below and record every lens's findings.
 Steps:
 
 1. If the slug is missing or is not letters, digits, `.`, `_` or `-` (starting with a letter or digit), stop and ask for one.
-2. Run `councilkit gate review --slug $0`. If it exits non-zero, show its message and stop: the plan changed since it was recorded or rebound, a judge asked for a human, or the ledger is broken, and the panel must not review it. (The build recorder, roadmap D17, adds `gate merge`, which also checks that the build is recorded; this step switches to it then.)
+2. Run `councilkit gate merge --slug $0`. If it exits non-zero, show its message and stop: the plan changed since it was recorded or rebound, a judge asked for a human, no passing `build.recorded` exists for the current `HEAD` (run `/councilkit:build` first), or the ledger is broken, and the panel must not review it.
 3. Run `councilkit panel --base <base-ref> --json`. It prints `{"changed_lines": n, "tier": t, "lenses": [...], "binary": [...]}`.
 4. Launch one `councilkit:lens-<lens>` agent for every name in `lenses`, all in the same turn so they run in parallel. Give each the slug and the base ref and nothing else; do not pass one lens's output to another.
 5. For each lens, pass its reply unchanged to `councilkit review ingest --slug $0 --lens <lens> --round <round>` on stdin (or save it to a file under `.councilkit/$0/` and pass `--file <path>`). Exit 0 records the findings; exit 1 means the reply was not a valid findings array and was recorded as `verdict: "error"`. Do not edit or retry a reply to make it valid.
