@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "reviewers": [
+    { "id": "alpha", "adapter": "replay" },
+    { "id": "beta", "adapter": "replay" }
+  ],
+  "judge": { "adapter": "replay" }
+}

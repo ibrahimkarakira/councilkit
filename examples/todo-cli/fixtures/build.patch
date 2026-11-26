@@ -1,0 +1,38 @@
+diff --git a/todo.mjs b/todo.mjs
+index bf6dc67..e115df9 100644
+--- a/todo.mjs
++++ b/todo.mjs
+@@ -26,10 +26,12 @@ export function run([command, ...args], out = console.log) {
+     save([...items, { name: args.join(' '), done: false }]);
+   } else if (command === 'done' && Number.isInteger(n) && items[n - 1]) {
+     save(items.map((item, i) => (i === n - 1 ? { ...item, done: true } : item)));
++  } else if (command === 'list' && args[0] === '--json') {
++    out(JSON.stringify(items.map((item) => item.name)));
+   } else if (command === 'list') {
+     items.forEach((item, i) => out(`${i + 1}. [${item.done ? 'x' : ' '}] ${item.name}`));
+   } else {
+-    console.error('usage: todo add <text> | todo done <n> | todo list');
++    console.error('usage: todo add <text> | todo done <n> | todo list [--json]');
+     return 2;
+   }
+   return 0;
+diff --git a/todo.test.mjs b/todo.test.mjs
+index e169a87..3ba2bee 100644
+--- a/todo.test.mjs
++++ b/todo.test.mjs
+@@ -16,3 +16,15 @@ test('add, done and list', (t) => {
+   assert.equal(run(['list'], (l) => lines.push(l)), 0);
+   assert.deepEqual(lines, ['1. [x] water the plants', '2. [ ] call the plumber']);
+ });
++
++test('list --json prints the names, and [] when there are none', (t) => {
++  const dir = mkdtempSync(join(tmpdir(), 'todo-'));
++  t.after(() => rmSync(dir, { recursive: true, force: true }));
++  process.env.TODO_FILE = join(dir, 'todos.json');
++  const lines = [];
++  assert.equal(run(['list', '--json'], (l) => lines.push(l)), 0);
++  run(['add', 'water the plants']);
++  run(['add', 'call the plumber']);
++  assert.equal(run(['list', '--json'], (l) => lines.push(l)), 0);
++  assert.deepEqual(lines, ['[]', '["water the plants","call the plumber"]']);
++});
