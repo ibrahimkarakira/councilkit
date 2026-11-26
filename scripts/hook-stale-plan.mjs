@@ -9,8 +9,7 @@ import { join } from 'node:path';
 import { checkReview } from '../lib/gate.mjs';
 
 // Claude Code namespaces plugin agents as `<plugin>:<agent>` (code.claude.com/docs/en/plugins-reference,
-// "name"). Reserved for the lens agents (agents/lens-<name>.md) that #22 adds; until they ship no
-// agent matches this prefix and the hook allows everything.
+// "name"). Matches the lens agents in agents/lens-<name>.md.
 const LENS_PREFIX = 'councilkit:lens-';
 
 // Slugs that have a plan.md; an empty list when .councilkit/ does not exist.
