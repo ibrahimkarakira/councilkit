@@ -23,7 +23,7 @@ node scripts/demo.mjs
 It copies `examples/todo-cli/` into a temporary git repository and runs, through `bin/councilkit`:
 
 1. **plan**: copies `fixtures/plan.md` to `.councilkit/add-json/plan.md`, runs `plan lint` and records `plan.created`.
-2. **plan review**: asks each reviewer in `councilkit.json` (`alpha`, `beta`) through the replay adapter and records each reply as `review.submitted` in round 1. `alpha` calls the missing empty-list check a blocker, `beta` calls it minor, so the finding is contested.
+2. **plan review**: `councilkit review run --target plan` asks each reviewer in `councilkit.json` (`alpha`, `beta`) with `prompts/plan-review.md` through the replay adapter and records each reply as `review.submitted` in round 1. `alpha` calls the missing empty-list check a blocker, `beta` calls it minor, so the finding is contested.
 3. **judge**: `councilkit judge --round 1` sends only that contested finding to the replay judge, which dismisses it.
 4. **build**: applies `fixtures/build.patch` (the `list --json` change and its test), commits it and runs `councilkit build record --test 'node --test'`, then `gate merge`.
 5. **panel**: `councilkit panel --json` sizes the panel from the diff, and each selected lens's recorded reply in `fixtures/panel/` goes through `councilkit review ingest` in round 2.
@@ -44,8 +44,10 @@ ok: .councilkit/add-json/plan.md
 plan.created seq 1, plan_sha sha256:16556053d050ae92f76f862c692f79ec973d59269c249c27037edb2ce165639a
 
 == plan review (round 1, replay)
+round 1
 alpha: changes (1 blocker)
 beta: approve (1 minor)
+contested: 1 of 1 (Acceptance|testability)
 
 == judge (round 1, replay)
 contested: 1 of 1  uncontested: 0
@@ -85,7 +87,7 @@ verify: ok
 ## Try it on your own repository
 
 Load the plugin for one session with `claude --plugin-dir <path to this clone>`, then use
-`/councilkit:plan`, `/councilkit:build`, `/councilkit:panel` and `/councilkit:report`. The plan review and
+`/councilkit:plan`, `/councilkit:plan-review`, `/councilkit:build`, `/councilkit:panel` and `/councilkit:report`. The plan review and
 judge steps call the adapters in your `councilkit.json` ([config](config.md)). The `codex` adapter needs the
 Codex CLI on `PATH` ([codex](codex.md)); it is tested only against a fake `codex` that replays a synthetic
 transcript, so a live run is `[UNCLEAR]` until one is recorded.

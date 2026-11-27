@@ -1,6 +1,6 @@
 # Config: `councilkit.json`
 
-Status: the loader and validator exist (`lib/config.mjs`, `loadConfig(dir)`). `councilkit judge` reads `judge` and `rules.blocker_severities`, and `councilkit panel` reads `panel.tiers`; `reviewers`, `dir`, `rules.max_fix_rounds` and `rules.block_on_stale_plan` are not used by any command yet, and the CLI still writes to `.councilkit/` whatever `dir` says. Where a meaning below says "will", it describes planned behaviour.
+Status: the loader and validator exist (`lib/config.mjs`, `loadConfig(dir)`). `councilkit judge` reads `judge` and `rules.blocker_severities`, `councilkit review run` reads `reviewers` and `rules.blocker_severities`, and `councilkit panel` reads `panel.tiers`; `dir`, `rules.max_fix_rounds` and `rules.block_on_stale_plan` are not used by any command yet, and the CLI still writes to `.councilkit/` whatever `dir` says. Where a meaning below says "will", it describes planned behaviour.
 
 One file at the repo root will drive the reviewers, the judge, the review panel tiers and the rules. It is optional: without it `loadConfig` returns the defaults below. `schemas/config.schema.json` describes the file as written, partial files included, for editors; `lib/config.mjs` is authoritative and also checks what the schema cannot (unique reviewer ids, ascending tiers).
 
@@ -36,7 +36,7 @@ The test suite (`test/config.test.mjs`) loads this exact block, so it cannot dri
 |---|---|---|
 | `version` | Config format version. Must be `1`. | `1` |
 | `dir` | Where ledgers and plans will live. | `.councilkit` |
-| `reviewers` | Non-empty list. Each has a unique `id` and an `adapter` (`codex`, `command` or `replay`); optional `model` (`null` = the adapter's default), `sandbox`, `timeout_s` (integer seconds, at least 1). `command` adapters need `command`, an argv array. | one `codex` reviewer, read-only, 600 s |
+| `reviewers` | Non-empty list. Each has a unique `id` and an `adapter` (`codex`, `command` or `replay`); optional `model` (`null` = the adapter's default), `sandbox`, `timeout_s` (integer seconds, at least 1). `command` adapters need `command`, an argv array. `councilkit review run --target plan` calls every reviewer in parallel and records each as `review.submitted` with `data.reviewer` = `id`. | one `codex` reviewer, read-only, 600 s |
 | `judge` | One adapter, same fields as a reviewer without `id`. `councilkit judge` calls it only on contested findings and records its `adapter` and `model` as the actor. | `codex`, 600 s |
 | `panel.tiers` | Sizes the panel by diff size: `councilkit panel --base <ref> [--json]` counts added plus deleted lines from `git diff --numstat` since the merge base of `<ref>` and `HEAD`, working tree and untracked files included, ignored files left out (binary files count as 0 and are listed), and picks the first tier whose `max_changed_lines` is not exceeded. `max_changed_lines` must strictly increase from tier to tier; `null` means "no upper bound" and is allowed only on the last tier. `lenses` is a non-empty list. | the three tiers above |
 | `rules.max_fix_rounds` | Integer, at least 1. | `3` |
