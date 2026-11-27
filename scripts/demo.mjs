@@ -7,13 +7,11 @@
 // checks out. Only stable lines are printed (no timestamps, commit SHAs or durations), so
 // docs/quickstart.md can show the exact output and test/demo.test.mjs diffs the two.
 import { spawnSync } from 'node:child_process';
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { getAdapter } from '../lib/adapters/index.mjs';
-import { loadConfig } from '../lib/config.mjs';
-import { normalisePlan } from '../lib/plan-hash.mjs';
+import { counts } from '../lib/review-run.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const EXAMPLE = join(ROOT, 'examples', 'todo-cli');
@@ -21,15 +19,6 @@ const BIN = join(ROOT, 'bin', 'councilkit');
 const SLUG = 'add-json';
 const PLAN = `.councilkit/${SLUG}/plan.md`; // forward slashes on every OS, so the output is the same
 const GIT_ID = ['-c', 'user.name=councilkit demo', '-c', 'user.email=demo@example.invalid', '-c', 'commit.gpgsign=false'];
-
-// ponytail: a stand-in plan-review request until the plan review skill (#18) defines the real
-// prompt; when it lands, re-record the two reviewer transcripts with scripts/record-transcript.mjs.
-export const REVIEW_SCHEMA = Object.freeze({ type: 'object', required: ['verdict', 'findings'] });
-export const reviewRequest = (id, plan) => ({
-  role: 'reviewer',
-  prompt: `You are plan reviewer ${id}. Review this plan and reply with JSON only: {"verdict", "findings"}.\n\n${normalisePlan(plan)}`,
-  schema: REVIEW_SCHEMA,
-});
 
 class DemoError extends Error {}
 
@@ -45,23 +34,6 @@ function sh(cwd, command, args, expect = 0) {
 const git = (cwd, ...args) => sh(cwd, 'git', [...GIT_ID, ...args]);
 const ck = (cwd, ...args) => sh(cwd, process.execPath, [BIN, ...args]);
 const appended = (stdout) => JSON.parse(stdout);
-const counts = (findings) => {
-  const by = Object.groupBy(findings, (f) => f.severity);
-  return Object.entries(by).map(([s, list]) => `${list.length} ${s}`).join(', ') || '0 findings';
-};
-
-async function planReview(dir, plan, say) {
-  const { reviewers } = loadConfig(dir);
-  for (const reviewer of reviewers) {
-    const reply = await getAdapter(reviewer).run({ ...reviewRequest(reviewer.id, plan), cwd: dir, timeout_s: reviewer.timeout_s ?? 600 });
-    if (!reply.ok) throw new DemoError(`reviewer ${reviewer.id}: ${reply.error}`);
-    const { verdict, findings } = reply.json;
-    const data = JSON.stringify({ reviewer: reviewer.id, round: 1, verdict, findings });
-    const actor = JSON.stringify({ role: 'reviewer', adapter: reviewer.adapter, model: reviewer.model ?? null });
-    ck(dir, 'ledger', 'append', '--slug', SLUG, '--type', 'review.submitted', '--data', data, '--actor', actor);
-    say(`${reviewer.id}: ${verdict} (${counts(findings)})`);
-  }
-}
 
 async function demo(dir, say) {
   cpSync(EXAMPLE, dir, { recursive: true });
@@ -79,7 +51,7 @@ async function demo(dir, say) {
   say(`plan.created seq ${created.seq}, plan_sha ${created.plan_sha}`);
 
   say('\n== plan review (round 1, replay)');
-  await planReview(dir, readFileSync(join(dir, PLAN), 'utf8'), say);
+  say(ck(dir, 'review', 'run', '--slug', SLUG, '--target', 'plan').trimEnd());
 
   say('\n== judge (round 1, replay)');
   say(ck(dir, 'judge', '--slug', SLUG, '--round', '1').trimEnd());
