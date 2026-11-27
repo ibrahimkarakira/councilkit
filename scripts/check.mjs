@@ -5,13 +5,23 @@
 //   3. plugin: `claude plugin validate --strict .`
 // `--docker` instead reruns `node --test` in node:22 and node:24 Linux containers, then
 // test/e2e.test.mjs with `--network none`, so "offline" is enforced rather than assumed.
-import { readdirSync } from 'node:fs';
+// `--hashes` prints the platform and the plan hash of each HASH_FIXTURES file; the local run and
+// each Docker image print it, so the per-OS hashes can be compared line by line.
+import { readdirSync, readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { planSha } from '../lib/plan-hash.mjs';
 
 const SKIP_DIRS = new Set(['node_modules', '.git', '.councilkit']);
 const DOCKER_IMAGES = ['node:22', 'node:24'];
+export const HASH_FIXTURES = ['fixtures/plan-ok.md', 'fixtures/plan-crlf.md', 'fixtures/plan-unicode.md', 'fixtures/plan-unicode-crlf.md'];
+
+function hashes(root) {
+  console.log(`hashes: ${process.platform} node ${process.version}`);
+  for (const rel of HASH_FIXTURES) console.log(`${planSha(readFileSync(join(root, rel), 'utf8'))} ${rel}`);
+  return true;
+}
 
 export function listMjs(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -46,16 +56,18 @@ function local(root) {
     return false;
   }
   if (!run('test', process.execPath, ['--test'], { cwd: root })) return false;
+  console.log('\n== hashes');
+  hashes(root);
   // Windows installs may expose `claude` as a .cmd shim, which needs a shell; the command is a constant.
   return run('plugin', 'claude plugin validate --strict .', [], { cwd: root, shell: true });
 }
 
 // The docker argv lists `--docker` runs, in order.
 export function dockerRuns(root) {
-  const base = (image, ...extra) => ['run', '--rm', ...extra, '-v', `${root}:/app`, '-w', '/app', image, 'node', '--test'];
+  const base = (image, ...extra) => ['run', '--rm', ...extra, '-v', `${root}:/app`, '-w', '/app', image, 'node'];
   return [
-    ...DOCKER_IMAGES.map((image) => base(image)),
-    [...base(DOCKER_IMAGES[0], '--network', 'none'), 'test/e2e.test.mjs'],
+    ...DOCKER_IMAGES.flatMap((image) => [[...base(image), '--test'], [...base(image), 'scripts/check.mjs', '--hashes']]),
+    [...base(DOCKER_IMAGES[0], '--network', 'none'), '--test', 'test/e2e.test.mjs'],
   ];
 }
 
@@ -65,6 +77,7 @@ function docker(root) {
 
 function main(argv) {
   const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+  if (argv.includes('--hashes')) return hashes(root) ? 0 : 1;
   const ok = argv.includes('--docker') ? docker(root) : local(root);
   console.log(ok ? '\ncheck: all steps passed' : '\ncheck: FAILED');
   return ok ? 0 : 1;

@@ -1,6 +1,9 @@
 # Store and check out text as LF on every OS, so a Windows edit (core.autocrlf=true, npm) never rewrites every line of a file.
 * text=auto eol=lf
+*.md text eol=lf
 
 # Plan-hash fixtures are byte-exact: keep the LF copy LF and the CRLF copy CRLF on every checkout.
 fixtures/plan-ok.md text eol=lf
 fixtures/plan-crlf.md -text
+fixtures/plan-unicode.md text eol=lf
+fixtures/plan-unicode-crlf.md -text

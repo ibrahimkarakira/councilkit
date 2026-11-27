@@ -22,7 +22,9 @@ It runs, in order, and stops on the first failure:
 2. `node --test`
 3. `claude plugin validate --strict .`
 
-To rerun the tests on Linux in `node:22` and `node:24` containers, then the end-to-end test (`test/e2e.test.mjs`) with `docker run --network none` so it is proven offline:
+Between steps 2 and 3 it prints the plan hash of each portability fixture (`node scripts/check.mjs --hashes` prints only those); see [docs/windows.md](docs/windows.md).
+
+To rerun the tests on Linux in `node:22` and `node:24` containers, with the fixture hashes printed per image, then the end-to-end test (`test/e2e.test.mjs`) with `docker run --network none` so it is proven offline:
 
 ```sh
 node scripts/check.mjs --docker
