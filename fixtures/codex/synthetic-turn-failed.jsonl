@@ -1,0 +1,3 @@
+{"type":"thread.started","thread_id":"synthetic-thread-0002"}
+{"type":"turn.started"}
+{"type":"turn.failed","error":{"message":"synthetic: model refused the request"}}
