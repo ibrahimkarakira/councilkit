@@ -3,7 +3,8 @@
 //   1. lint: `node --check` on every .mjs file
 //   2. tests: `node --test`
 //   3. plugin: `claude plugin validate --strict .`
-// `--docker` instead reruns `node --test` in node:22 and node:24 Linux containers.
+// `--docker` instead reruns `node --test` in node:22 and node:24 Linux containers, then
+// test/e2e.test.mjs with `--network none`, so "offline" is enforced rather than assumed.
 import { readdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { join, dirname, resolve } from 'node:path';
@@ -49,12 +50,17 @@ function local(root) {
   return run('plugin', 'claude plugin validate --strict .', [], { cwd: root, shell: true });
 }
 
+// The docker argv lists `--docker` runs, in order.
+export function dockerRuns(root) {
+  const base = (image, ...extra) => ['run', '--rm', ...extra, '-v', `${root}:/app`, '-w', '/app', image, 'node', '--test'];
+  return [
+    ...DOCKER_IMAGES.map((image) => base(image)),
+    [...base(DOCKER_IMAGES[0], '--network', 'none'), 'test/e2e.test.mjs'],
+  ];
+}
+
 function docker(root) {
-  for (const image of DOCKER_IMAGES) {
-    const args = ['run', '--rm', '-v', `${root}:/app`, '-w', '/app', image, 'node', '--test'];
-    if (!run(`docker ${image}`, 'docker', args)) return false;
-  }
-  return true;
+  return dockerRuns(root).every((args) => run('docker', 'docker', args));
 }
 
 function main(argv) {

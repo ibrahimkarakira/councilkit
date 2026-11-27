@@ -41,4 +41,4 @@ Checked on 2026-11-28 in the Codex CLI source (`codex-rs/exec/src/cli.rs`, `code
 
 ## Tests
 
-`test/codex.test.mjs` puts a fake `codex` (`test/bin/codex`, plus `codex.cmd` for Windows) first on `PATH`. It replays the hand-written transcripts in `fixtures/codex/synthetic-*.jsonl`, built from the event list above and labelled `synthetic`; they are not recordings of a real run. A live recording is planned for roadmap task D20.
+`test/codex.test.mjs` puts a fake `codex` (`test/bin/codex`, plus `codex.cmd` for Windows) first on `PATH`. It replays the hand-written transcripts in `fixtures/codex/synthetic-*.jsonl`, built from the event list above and labelled `synthetic`; they are not recordings of a real run. `scripts/record-live.mjs` re-records the demo transcripts from a real `codex` (see CONTRIBUTING.md); no live recording has been made yet.
