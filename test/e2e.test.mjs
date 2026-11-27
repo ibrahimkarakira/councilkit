@@ -17,6 +17,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 const EVENT_ORDER = [
   'plan.created',
+  'round.opened', // review run opens round 1; review ingest (round 2) does not
   'review.submitted', 'review.submitted', // round 1: plan review by alpha and beta
   'judge.ruled',
   'build.recorded',

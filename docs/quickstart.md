@@ -23,7 +23,7 @@ node scripts/demo.mjs
 It copies `examples/todo-cli/` into a temporary git repository and runs, through `bin/councilkit`:
 
 1. **plan**: copies `fixtures/plan.md` to `.councilkit/add-json/plan.md`, runs `plan lint` and records `plan.created`.
-2. **plan review**: `councilkit review run --target plan` asks each reviewer in `councilkit.json` (`alpha`, `beta`) with `prompts/plan-review.md` through the replay adapter and records each reply as `review.submitted` in round 1. `alpha` calls the missing empty-list check a blocker, `beta` calls it minor, so the finding is contested.
+2. **plan review**: `councilkit review run --target plan` asks each reviewer in `councilkit.json` (`alpha`, `beta`) with `prompts/plan-review.md` through the replay adapter, records `round.opened` and then each reply as `review.submitted` in round 1. `alpha` calls the missing empty-list check a blocker, `beta` calls it minor, so the finding is contested.
 3. **judge**: `councilkit judge --round 1` sends only that contested finding to the replay judge, which dismisses it.
 4. **build**: applies `fixtures/build.patch` (the `list --json` change and its test), commits it and runs `councilkit build record --test 'node --test'`, then `gate merge`.
 5. **panel**: `councilkit panel --json` sizes the panel from the diff, and each selected lens's recorded reply in `fixtures/panel/` goes through `councilkit review ingest` in round 2.
@@ -54,7 +54,7 @@ contested: 1 of 1  uncontested: 0
 ruling: dismiss Acceptance|testability
 
 == build
-build.recorded seq 5: diff_lines 16, exit 0
+build.recorded seq 6: diff_lines 16, exit 0
 gate merge: ok
 
 == panel (round 2, recorded lens replies)
@@ -70,16 +70,17 @@ councilkit report: add-json
 
 seq  event             round  actor                 verdict  findings   contested  rulings                         plan
 1    plan.created             cli/councilkit                                                                       16556053d050
-2    review.submitted  1      reviewer/replay       changes  1 blocker                                             16556053d050
-3    review.submitted  1      reviewer/replay       approve  1 minor                                               16556053d050
-4    judge.ruled       1      judge/replay                              1          dismiss Acceptance|testability  16556053d050
-5    build.recorded           build/councilkit      exit 0                                                         16556053d050
-6    review.submitted  2      reviewer/claude-code  approve  0                                                     16556053d050
-7    review.submitted  2      reviewer/claude-code  approve  1 nit                                                 16556053d050
-8    verdict.issued    2      verdict/councilkit    approve                                                        16556053d050
+2    round.opened      1      cli/councilkit                                                                       16556053d050
+3    review.submitted  1      reviewer/replay       changes  1 blocker                                             16556053d050
+4    review.submitted  1      reviewer/replay       approve  1 minor                                               16556053d050
+5    judge.ruled       1      judge/replay                              1          dismiss Acceptance|testability  16556053d050
+6    build.recorded           build/councilkit      exit 0                                                         16556053d050
+7    review.submitted  2      reviewer/claude-code  approve  0                                                     16556053d050
+8    review.submitted  2      reviewer/claude-code  approve  1 nit                                                 16556053d050
+9    verdict.issued    2      verdict/councilkit    approve                                                        16556053d050
 
-verify: ok (8 lines)
-verdict: approve (seq 8)
+verify: ok (9 lines)
+verdict: approve (seq 9)
 
 verify: ok
 ```
