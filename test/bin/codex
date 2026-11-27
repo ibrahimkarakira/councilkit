@@ -1,0 +1,18 @@
+#!/usr/bin/env node
+// Fake `codex` for test/codex.test.mjs. No file extension, so `node --test` never runs it as a test.
+// Logs its argv and stdin to $FAKE_CODEX_LOG, prints the JSONL transcript at $FAKE_CODEX_TRANSCRIPT,
+// writes the last agent_message to the -o file, and exits 1 when the transcript holds turn.failed or
+// error, as `codex exec` does. $FAKE_CODEX_SLEEP_MS delays the exit.
+import { readFileSync, writeFileSync } from 'node:fs';
+
+const argv = process.argv.slice(2);
+const stdin = readFileSync(0, 'utf8');
+writeFileSync(process.env.FAKE_CODEX_LOG, JSON.stringify({ argv, stdin }));
+const text = readFileSync(process.env.FAKE_CODEX_TRANSCRIPT, 'utf8');
+process.stdout.write(text);
+const events = text.split('\n').filter(Boolean).map((line) => JSON.parse(line));
+const last = events.filter((e) => e.type === 'item.completed' && e.item.type === 'agent_message').pop();
+const out = argv.indexOf('-o');
+if (out !== -1 && last) writeFileSync(argv[out + 1], last.item.text);
+const failed = events.some((e) => e.type === 'turn.failed' || e.type === 'error');
+setTimeout(() => process.exit(failed ? 1 : 0), Number(process.env.FAKE_CODEX_SLEEP_MS ?? 0));

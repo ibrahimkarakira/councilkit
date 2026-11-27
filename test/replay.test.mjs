@@ -64,7 +64,7 @@ test('replay refuses a fixture whose request does not match its file name', asyn
 });
 
 test('getAdapter names adapters that do not exist yet', () => {
-  assert.throws(() => getAdapter({ adapter: 'codex' }), /adapter "codex" is not available yet/);
+  assert.throws(() => getAdapter({ adapter: 'command' }), /adapter "command" is not available yet/);
   assert.throws(() => getAdapter({ adapter: 'nope' }), /unknown adapter "nope"/);
 });
 

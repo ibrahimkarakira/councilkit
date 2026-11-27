@@ -86,5 +86,6 @@ verify: ok
 
 Load the plugin for one session with `claude --plugin-dir <path to this clone>`, then use
 `/councilkit:plan`, `/councilkit:build`, `/councilkit:panel` and `/councilkit:report`. The plan review and
-judge steps call the adapters in your `councilkit.json` ([config](config.md)); until the `codex`
-adapter lands, only `replay` runs, so a live review round is not possible yet.
+judge steps call the adapters in your `councilkit.json` ([config](config.md)). The `codex` adapter needs the
+Codex CLI on `PATH` ([codex](codex.md)); it is tested only against a fake `codex` that replays a synthetic
+transcript, so a live run is `[UNCLEAR]` until one is recorded.
