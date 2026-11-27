@@ -22,12 +22,16 @@ export function privateMatches(text) {
   return PRIVATE.filter(([, re]) => re.test(text)).map(([label]) => label);
 }
 
-export async function record(adapter, request, outDir) {
-  const response = await adapter.run(request);
-  const fixture = { request: keyedRequest(request), response };
-  const text = `${JSON.stringify(fixture, null, 2)}\n`;
+// The transcript file text; throws (so nothing is written) when the redaction pass finds anything.
+export function fixtureText(request, response) {
+  const text = `${JSON.stringify({ request: keyedRequest(request), response }, null, 2)}\n`;
   const found = privateMatches(text);
   if (found.length) throw new Error(`refusing to write transcript: it contains ${found.join(', ')}; redact the request or response`);
+  return text;
+}
+
+export async function record(adapter, request, outDir) {
+  const text = fixtureText(request, await adapter.run(request));
   mkdirSync(outDir, { recursive: true });
   const file = join(outDir, `${requestKey(request)}.json`);
   writeFileSync(file, text);

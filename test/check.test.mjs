@@ -47,3 +47,12 @@ test('plugin manifest is named councilkit and no marketplace file is shipped', (
   assert.equal(manifest.license, 'Apache-2.0');
   assert.equal(existsSync(join(root, '.claude-plugin', 'marketplace.json')), false);
 });
+
+test('--docker runs the full suite per image, then the e2e test with --network none', async () => {
+  const { dockerRuns } = await import('../scripts/check.mjs');
+  const runs = dockerRuns('/repo');
+  const offline = runs.filter((args) => args.join(' ').includes('--network none'));
+  assert.ok(offline.length >= 1);
+  for (const args of offline) assert.deepEqual(args.slice(-3), ['node', '--test', 'test/e2e.test.mjs']);
+  assert.ok(runs.some((args) => args.at(-1) === '--test'), 'the full suite still runs in Docker');
+});

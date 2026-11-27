@@ -14,7 +14,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { counts } from '../lib/review-run.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const EXAMPLE = join(ROOT, 'examples', 'todo-cli');
+export const EXAMPLE = join(ROOT, 'examples', 'todo-cli');
 const BIN = join(ROOT, 'bin', 'councilkit');
 const SLUG = 'add-json';
 const PLAN = `.councilkit/${SLUG}/plan.md`; // forward slashes on every OS, so the output is the same
@@ -35,8 +35,9 @@ const git = (cwd, ...args) => sh(cwd, 'git', [...GIT_ID, ...args]);
 const ck = (cwd, ...args) => sh(cwd, process.execPath, [BIN, ...args]);
 const appended = (stdout) => JSON.parse(stdout);
 
-async function demo(dir, say) {
-  cpSync(EXAMPLE, dir, { recursive: true });
+// `example` is the project copied into `dir`; test/e2e.test.mjs swaps in a variant for its guard.
+export async function demo(dir, say, { example = EXAMPLE } = {}) {
+  cpSync(example, dir, { recursive: true });
   git(dir, 'init', '--quiet');
   git(dir, 'config', 'core.autocrlf', 'false');
   git(dir, 'add', '.');
